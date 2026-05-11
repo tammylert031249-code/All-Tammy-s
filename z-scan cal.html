@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nonlinear Refractive Index Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --surface2: #efefeb;
+      --border: #ddddd8;
+      --text: #1a1a18;
+      --muted: #888880;
+      --accent: #185FA5;
+      --accent-light: #e6f1fb;
+      --accent-text: #0C447C;
+      --accent-border: #B5D4F4;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1rem 5rem;
+    }
+
+    .wrap { width: 100%; max-width: 580px; }
+
+    header { margin-bottom: 2rem; }
+
+    .badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--accent-text);
+      background: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      border-radius: 100px;
+      padding: 3px 10px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .formula-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 2;
+    }
+
+    .formula-box span { color: var(--text); font-weight: 500; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .input-group {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      transition: border-color 0.15s;
+    }
+
+    .input-group:focus-within { border-color: var(--accent); }
+
+    .input-group label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+    }
+
+    .input-group .unit {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .input-group input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input-group input::placeholder { color: #ccc; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-calc {
+      flex: 1;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 11px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--text);
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn-calc:hover { opacity: 0.82; }
+    .btn-calc:active { transform: scale(0.98); }
+
+    .btn-reset {
+      font-family: var(--mono);
+      font-size: 14px;
+      padding: 11px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-reset:hover { background: var(--surface2); }
+
+    .error {
+      display: none;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: #A32D2D;
+      background: #fcebeb;
+      border: 1px solid #F7C1C1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+    }
+
+    .result-card {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .result-header {
+      background: var(--text);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .result-header .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+    }
+
+    .result-header .n2-val {
+      font-family: var(--mono);
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .result-header .n2-unit {
+      font-family: var(--mono);
+      font-size: 13px;
+      opacity: 0.6;
+      margin-left: 6px;
+    }
+
+    .result-body { padding: 1.25rem 1.5rem; }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-content { flex: 1; }
+
+    .step-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .step-val {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1rem 0;
+    }
+
+    .input-echo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .echo-item {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .echo-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .echo-val {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    footer {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 480px) {
+      .input-row { grid-template-columns: 1fr; }
+      .input-echo { grid-template-columns: 1fr; }
+      .result-header { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">Z-Scan Technique</div>
+    <h1>Nonlinear Refractive Index<br>Calculator (n₂)</h1>
+    <p class="subtitle">Closed-aperture Z-scan method</p>
+    <div class="formula-box">
+      k = 2π / λ &nbsp;·&nbsp;
+      ΔΦ = <span>ΔT(p-v)</span> / [0.406 × (1 − s)] &nbsp;·&nbsp;
+      <span>n₂ = ΔΦ / (k · I · L_eff)</span>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="card-title">INPUT PARAMETERS</div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>WAVELENGTH λ</label>
+        <input type="number" id="wavelength" placeholder="0.00" min="0" step="any" />
+        <div class="unit">nm</div>
+      </div>
+      <div class="input-group">
+        <label>LASER INTENSITY I</label>
+        <input type="number" id="intensity" placeholder="0.00" min="0" step="any" />
+        <div class="unit">W/m²</div>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>EFFECTIVE LENGTH L_eff</label>
+        <input type="number" id="leff" placeholder="0.00" min="0" step="any" />
+        <div class="unit">m</div>
+      </div>
+      <div class="input-group">
+        <label>APERTURE FRACTION s</label>
+        <input type="number" id="s" placeholder="0.00" min="0" max="1" step="any" />
+        <div class="unit">dimensionless (0 – 1)</div>
+      </div>
+    </div>
+
+    <div class="input-row" style="grid-template-columns: 1fr;">
+      <div class="input-group">
+        <label>ΔT(p-v) — PEAK-TO-VALLEY TRANSMITTANCE CHANGE</label>
+        <input type="number" id="delta_t" placeholder="0.00" step="any" />
+        <div class="unit">dimensionless</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-calc" onclick="calculate()">Calculate →</button>
+      <button class="btn-reset" onclick="resetAll()">↺</button>
+    </div>
+
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <div class="result-card" id="result-section">
+    <div class="result-header">
+      <div>
+        <div class="label">NONLINEAR REFRACTIVE INDEX</div>
+        <div style="display:flex; align-items:baseline;">
+          <span class="n2-val" id="n2-val">—</span>
+          <span class="n2-unit">m²/W</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="label">SCIENTIFIC NOTATION</div>
+        <div style="font-family:var(--mono); font-size:13px; opacity:0.7;" id="n2-sci">—</div>
+      </div>
+    </div>
+
+    <div class="result-body">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-label">WAVE NUMBER  k = 2π / λ</div>
+            <div class="step-val" id="k-val">—</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-label">PHASE SHIFT  ΔΦ = ΔT(p-v) / [0.406 × (1 − s)]</div>
+            <div class="step-val" id="phi-val">—</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-label">n₂ = ΔΦ / (k · I · L_eff)</div>
+            <div class="step-val" id="n2-step">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="echo-label" style="margin-bottom:8px; font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:0.05em;">INPUT SUMMARY</div>
+      <div class="input-echo">
+        <div class="echo-item">
+          <div class="echo-label">λ</div>
+          <div class="echo-val" id="echo-wl">—</div>
+        </div>
+        <div class="echo-item">
+          <div class="echo-label">I</div>
+          <div class="echo-val" id="echo-i">—</div>
+        </div>
+        <div class="echo-item">
+          <div class="echo-label">L_eff</div>
+          <div class="echo-val" id="echo-l">—</div>
+        </div>
+        <div class="echo-item">
+          <div class="echo-label">s</div>
+          <div class="echo-val" id="echo-s">—</div>
+        </div>
+        <div class="echo-item" style="grid-column: span 2;">
+          <div class="echo-label">ΔT(p-v)</div>
+          <div class="echo-val" id="echo-dt">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Z-Scan · Nonlinear Refractive Index · n₂ = ΔΦ / (k · I · L_eff)</footer>
+</div>
+
+<script>
+  const PI = Math.PI;
+
+  function toSci(val) {
+    if (val === 0) return '0';
+    const exp = Math.floor(Math.log10(Math.abs(val)));
+    const mant = val / Math.pow(10, exp);
+    return `${mant.toFixed(4)} × 10^${exp}`;
+  }
+
+  function calculate() {
+    const wl_nm  = parseFloat(document.getElementById('wavelength').value);
+    const I      = parseFloat(document.getElementById('intensity').value);
+    const Leff   = parseFloat(document.getElementById('leff').value);
+    const s      = parseFloat(document.getElementById('s').value);
+    const dT     = parseFloat(document.getElementById('delta_t').value);
+
+    const err = document.getElementById('error-msg');
+    const res = document.getElementById('result-section');
+    err.style.display = 'none';
+    res.style.display = 'none';
+
+    if ([wl_nm, I, Leff, s, dT].some(isNaN)) {
+      err.textContent = 'Please fill in all input fields.';
+      err.style.display = 'block'; return;
+    }
+    if (wl_nm <= 0) { err.textContent = 'Wavelength must be > 0.'; err.style.display = 'block'; return; }
+    if (I <= 0)     { err.textContent = 'Intensity must be > 0.';   err.style.display = 'block'; return; }
+    if (Leff <= 0)  { err.textContent = 'L_eff must be > 0.';       err.style.display = 'block'; return; }
+    if (s <= 0 || s >= 1) { err.textContent = 'Aperture fraction s must be between 0 and 1 (exclusive).'; err.style.display = 'block'; return; }
+
+    const wl_m   = wl_nm * 1e-9;
+    const k      = (2 * PI) / wl_m;
+    const denom  = 0.406 * (1 - s);
+    if (denom === 0) { err.textContent = 'Invalid s value — denominator is zero.'; err.style.display = 'block'; return; }
+    const dPhi   = dT / denom;
+    const kIL    = k * I * Leff;
+    if (kIL === 0) { err.textContent = 'k · I · L_eff = 0 — cannot divide by zero.'; err.style.display = 'block'; return; }
+    const n2     = dPhi / kIL;
+
+    document.getElementById('k-val').textContent   = `${k.toExponential(4)} m⁻¹`;
+    document.getElementById('phi-val').textContent  = `${dPhi.toFixed(6)} rad`;
+    document.getElementById('n2-step').textContent  = `${n2.toExponential(4)} m²/W`;
+    document.getElementById('n2-val').textContent   = n2.toExponential(4);
+    document.getElementById('n2-sci').textContent   = toSci(n2) + ' m²/W';
+
+    document.getElementById('echo-wl').textContent = `${wl_nm} nm`;
+    document.getElementById('echo-i').textContent  = `${I.toExponential(3)} W/m²`;
+    document.getElementById('echo-l').textContent  = `${Leff} m`;
+    document.getElementById('echo-s').textContent  = `${s}`;
+    document.getElementById('echo-dt').textContent = `${dT}`;
+
+    res.style.display = 'block';
+  }
+
+  function resetAll() {
+    ['wavelength','intensity','leff','s','delta_t'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('result-section').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  document.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laser Power Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --surface2: #efefeb;
+      --border: #ddddd8;
+      --text: #1a1a18;
+      --muted: #888880;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+
+      --c1: #185FA5; --c1-light: #e6f1fb; --c1-border: #B5D4F4; --c1-text: #0C447C;
+      --c2: #0F6E56; --c2-light: #e1f5ee; --c2-border: #9FE1CB; --c2-text: #085041;
+      --c3: #BA7517; --c3-light: #faeeda; --c3-border: #FAC775; --c3-text: #854F0B;
+      --c4: #993556; --c4-light: #fbeaf0; --c4-border: #F4C0D1; --c4-text: #72243E;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 3rem 1rem 5rem;
+    }
+
+    .page-wrap { max-width: 620px; margin: 0 auto; }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 2.5rem; }
+    .page-badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 3px 10px;
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .page-header p {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* BLOCK */
+    .block { margin-bottom: 1.25rem; }
+
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .block-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .block-title {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .block-formula {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    /* COLOR VARIANTS */
+    .b1 .block-num { background: var(--c1-light); color: var(--c1-text); border: 1px solid var(--c1-border); }
+    .b2 .block-num { background: var(--c2-light); color: var(--c2-text); border: 1px solid var(--c2-border); }
+    .b3 .block-num { background: var(--c3-light); color: var(--c3-text); border: 1px solid var(--c3-border); }
+    .b4 .block-num { background: var(--c4-light); color: var(--c4-text); border: 1px solid var(--c4-border); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .b1 .card { border-top: 2px solid var(--c1); }
+    .b2 .card { border-top: 2px solid var(--c2); }
+    .b3 .card { border-top: 2px solid var(--c3); }
+    .b4 .card { border-top: 2px solid var(--c4); }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .inputs-grid.single { grid-template-columns: 1fr; }
+    .inputs-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+    .input-group {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      transition: border-color 0.15s;
+    }
+
+    .input-group:focus-within { border-color: #888; }
+    .b1 .input-group:focus-within { border-color: var(--c1); }
+    .b2 .input-group:focus-within { border-color: var(--c2); }
+    .b3 .input-group:focus-within { border-color: var(--c3); }
+    .b4 .input-group:focus-within { border-color: var(--c4); }
+
+    .input-group label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .input-group input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input-group input::placeholder { color: #ccc; }
+    .input-group .unit { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    .btn-row { display: flex; gap: 8px; }
+
+    .btn-calc {
+      flex: 1;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      color: #fff;
+    }
+
+    .b1 .btn-calc { background: var(--c1); }
+    .b2 .btn-calc { background: var(--c2); }
+    .b3 .btn-calc { background: var(--c3); }
+    .b4 .btn-calc { background: var(--c4); }
+
+    .btn-calc:hover { opacity: 0.85; }
+    .btn-calc:active { transform: scale(0.98); }
+
+    .btn-reset {
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-reset:hover { background: var(--surface2); }
+
+    .error {
+      display: none;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #A32D2D;
+      background: #fcebeb;
+      border: 1px solid #F7C1C1;
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .result-box {
+      display: none;
+      margin-top: 12px;
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+
+    .b1 .result-box { background: var(--c1-light); border: 1px solid var(--c1-border); }
+    .b2 .result-box { background: var(--c2-light); border: 1px solid var(--c2-border); }
+    .b3 .result-box { background: var(--c3-light); border: 1px solid var(--c3-border); }
+    .b4 .result-box { background: var(--c4-light); border: 1px solid var(--c4-border); }
+
+    .result-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      margin-bottom: 4px;
+    }
+
+    .b1 .result-label { color: var(--c1-text); }
+    .b2 .result-label { color: var(--c2-text); }
+    .b3 .result-label { color: var(--c3-text); }
+    .b4 .result-label { color: var(--c4-text); }
+
+    .result-value {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .b1 .result-value { color: var(--c1); }
+    .b2 .result-value { color: var(--c2); }
+    .b3 .result-value { color: var(--c3); }
+    .b4 .result-value { color: var(--c4); }
+
+    .result-formula-echo {
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .b1 .result-formula-echo { color: var(--c1-text); opacity: 0.7; }
+    .b2 .result-formula-echo { color: var(--c2-text); opacity: 0.7; }
+    .b3 .result-formula-echo { color: var(--c3-text); opacity: 0.7; }
+    .b4 .result-formula-echo { color: var(--c4-text); opacity: 0.7; }
+
+    /* DIVIDER */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0.25rem 0 1.25rem;
+    }
+    .section-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+    .section-divider span { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; white-space: nowrap; }
+
+    footer {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      .inputs-grid, .inputs-grid.triple { grid-template-columns: 1fr; }
+      .block-formula { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="page-badge">Laser · Optics</div>
+    <h1>Laser Power Calculator</h1>
+    <p>Four calculations · Power · Pulse Energy · Peak Power · Peak Intensity</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       BLOCK 1 — Average Power
+  ════════════════════════════════════════ -->
+  <div class="block b1">
+    <div class="block-header">
+      <div class="block-num">1</div>
+      <div class="block-title">Average Power</div>
+      <div class="block-formula">P = E / t</div>
+    </div>
+    <div class="card">
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>ENERGY E</label>
+          <input type="number" id="b1-energy" placeholder="0.00" min="0" step="any" />
+          <div class="unit">J (joules)</div>
+        </div>
+        <div class="input-group">
+          <label>TIME t</label>
+          <input type="number" id="b1-time" placeholder="0.00" min="0" step="any" />
+          <div class="unit">s (seconds)</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcB1()">Calculate →</button>
+        <button class="btn-reset" onclick="resetBlock('b1')">↺</button>
+      </div>
+      <div class="error" id="b1-err"></div>
+      <div class="result-box" id="b1-result">
+        <div class="result-label">AVERAGE POWER</div>
+        <div class="result-value" id="b1-val">—</div>
+        <div class="result-formula-echo" id="b1-echo">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><hr /><span>PULSE DOMAIN</span><hr /></div>
+
+  <!-- ═══════════════════════════════════════
+       BLOCK 2 — Pulse Energy
+  ════════════════════════════════════════ -->
+  <div class="block b2">
+    <div class="block-header">
+      <div class="block-num">2</div>
+      <div class="block-title">Pulse Energy</div>
+      <div class="block-formula">E_pulse = P_avg / Rep rate</div>
+    </div>
+    <div class="card">
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>AVERAGE POWER P_avg</label>
+          <input type="number" id="b2-pavg" placeholder="0.00" min="0" step="any" />
+          <div class="unit">W (watts)</div>
+        </div>
+        <div class="input-group">
+          <label>REPETITION RATE</label>
+          <input type="number" id="b2-reprate" placeholder="0.00" min="0" step="any" />
+          <div class="unit">Hz</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcB2()">Calculate →</button>
+        <button class="btn-reset" onclick="resetBlock('b2')">↺</button>
+      </div>
+      <div class="error" id="b2-err"></div>
+      <div class="result-box" id="b2-result">
+        <div class="result-label">PULSE ENERGY</div>
+        <div class="result-value" id="b2-val">—</div>
+        <div class="result-formula-echo" id="b2-echo">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       BLOCK 3 — Peak Power
+  ════════════════════════════════════════ -->
+  <div class="block b3">
+    <div class="block-header">
+      <div class="block-num">3</div>
+      <div class="block-title">Peak Power</div>
+      <div class="block-formula">P_peak = E_pulse / τ</div>
+    </div>
+    <div class="card">
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>PULSE ENERGY E_pulse</label>
+          <input type="number" id="b3-epulse" placeholder="0.00" min="0" step="any" />
+          <div class="unit">J (joules)</div>
+        </div>
+        <div class="input-group">
+          <label>PULSE WIDTH / DURATION τ</label>
+          <input type="number" id="b3-tau" placeholder="0.00" min="0" step="any" />
+          <div class="unit">s (seconds)</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcB3()">Calculate →</button>
+        <button class="btn-reset" onclick="resetBlock('b3')">↺</button>
+      </div>
+      <div class="error" id="b3-err"></div>
+      <div class="result-box" id="b3-result">
+        <div class="result-label">PEAK POWER</div>
+        <div class="result-value" id="b3-val">—</div>
+        <div class="result-formula-echo" id="b3-echo">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><hr /><span>INTENSITY DOMAIN</span><hr /></div>
+
+  <!-- ═══════════════════════════════════════
+       BLOCK 4 — Peak Intensity I₀
+  ════════════════════════════════════════ -->
+  <div class="block b4">
+    <div class="block-header">
+      <div class="block-num">4</div>
+      <div class="block-title">Peak Intensity I₀</div>
+      <div class="block-formula">I₀ = 2P / A</div>
+    </div>
+    <div class="card">
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>POWER P</label>
+          <input type="number" id="b4-power" placeholder="0.00" min="0" step="any" />
+          <div class="unit">W (watts)</div>
+        </div>
+        <div class="input-group">
+          <label>BEAM AREA A</label>
+          <input type="number" id="b4-area" placeholder="0.00" min="0" step="any" />
+          <div class="unit">m² (square metres)</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcB4()">Calculate →</button>
+        <button class="btn-reset" onclick="resetBlock('b4')">↺</button>
+      </div>
+      <div class="error" id="b4-err"></div>
+      <div class="result-box" id="b4-result">
+        <div class="result-label">PEAK INTENSITY I₀</div>
+        <div class="result-value" id="b4-val">—</div>
+        <div class="result-formula-echo" id="b4-echo">—</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Laser Power Calculator · P = E/t · E_pulse = P_avg/f · P_peak = E_pulse/τ · I₀ = 2P/A</footer>
+</div>
+
+<script>
+  function showErr(id, msg) {
+    const el = document.getElementById(id + '-err');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById(id + '-result').style.display = 'none';
+  }
+
+  function showResult(id, label, value, unit, echo) {
+    document.getElementById(id + '-err').style.display = 'none';
+    document.getElementById(id + '-val').textContent = formatVal(value) + ' ' + unit;
+    document.getElementById(id + '-echo').textContent = echo;
+    document.getElementById(id + '-result').style.display = 'block';
+  }
+
+  function formatVal(v) {
+    if (v === 0) return '0';
+    const abs = Math.abs(v);
+    if (abs >= 1e-3 && abs < 1e6) return parseFloat(v.toPrecision(6)).toString();
+    return v.toExponential(4);
+  }
+
+  function validate(val, name) {
+    if (isNaN(val) || val === '') return name + ' is required.';
+    if (val < 0) return name + ' must not be negative.';
+    return null;
+  }
+
+  /* BLOCK 1 */
+  function calcB1() {
+    const E = parseFloat(document.getElementById('b1-energy').value);
+    const t = parseFloat(document.getElementById('b1-time').value);
+    const err = validate(E, 'Energy E') || validate(t, 'Time t');
+    if (err) { showErr('b1', err); return; }
+    if (t === 0) { showErr('b1', 'Time t must not be zero.'); return; }
+    const P = E / t;
+    showResult('b1', 'AVERAGE POWER', P, 'W',
+      `P = ${formatVal(E)} J ÷ ${formatVal(t)} s = ${formatVal(P)} W`);
+  }
+
+  /* BLOCK 2 */
+  function calcB2() {
+    const Pavg = parseFloat(document.getElementById('b2-pavg').value);
+    const f    = parseFloat(document.getElementById('b2-reprate').value);
+    const err  = validate(Pavg, 'Average power P_avg') || validate(f, 'Repetition rate');
+    if (err) { showErr('b2', err); return; }
+    if (f === 0) { showErr('b2', 'Repetition rate must not be zero.'); return; }
+    const Ep = Pavg / f;
+    showResult('b2', 'PULSE ENERGY', Ep, 'J',
+      `E_pulse = ${formatVal(Pavg)} W ÷ ${formatVal(f)} Hz = ${formatVal(Ep)} J`);
+  }
+
+  /* BLOCK 3 */
+  function calcB3() {
+    const Ep  = parseFloat(document.getElementById('b3-epulse').value);
+    const tau = parseFloat(document.getElementById('b3-tau').value);
+    const err = validate(Ep, 'Pulse energy E_pulse') || validate(tau, 'Pulse width τ');
+    if (err) { showErr('b3', err); return; }
+    if (tau === 0) { showErr('b3', 'Pulse width τ must not be zero.'); return; }
+    const Pp = Ep / tau;
+    showResult('b3', 'PEAK POWER', Pp, 'W',
+      `P_peak = ${formatVal(Ep)} J ÷ ${formatVal(tau)} s = ${formatVal(Pp)} W`);
+  }
+
+  /* BLOCK 4 */
+  function calcB4() {
+    const P = parseFloat(document.getElementById('b4-power').value);
+    const A = parseFloat(document.getElementById('b4-area').value);
+    const err = validate(P, 'Power P') || validate(A, 'Beam area A');
+    if (err) { showErr('b4', err); return; }
+    if (A === 0) { showErr('b4', 'Beam area A must not be zero.'); return; }
+    const I0 = (2 * P) / A;
+    showResult('b4', 'PEAK INTENSITY', I0, 'W/m²',
+      `I₀ = 2 × ${formatVal(P)} W ÷ ${formatVal(A)} m² = ${formatVal(I0)} W/m²`);
+  }
+
+  function resetBlock(id) {
+    document.querySelectorAll(`#${id === 'b1' ? 'b1' : id === 'b2' ? 'b2' : 'b3'}-result, #${id}-err`)
+      .forEach(el => el.style.display = 'none');
+    document.querySelectorAll(`[id^="${id}-"]`).forEach(el => {
+      if (el.tagName === 'INPUT') el.value = '';
+    });
+  }
+
+  /* Enter key support */
+  document.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const id = inp.id.split('-')[0];
+      if (id === 'b1') calcB1();
+      else if (id === 'b2') calcB2();
+      else if (id === 'b3') calcB3();
+      else if (id === 'b4') calcB4();
+    });
+  });
+</script>
+</body>
+</html>
