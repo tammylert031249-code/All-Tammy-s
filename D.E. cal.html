@@ -423,5 +423,10 @@
   document.getElementById('p0').addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
   document.getElementById('p1').addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
 </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
 </body>
 </html>
