@@ -95,28 +95,21 @@
       position:relative;
       z-index:2;
     }
-
-    /* hello kitty corner image */
-
     .corner-img{
       position:fixed;
-
       width:170px;
-
       right:20px;
       bottom:20px;
-
       opacity:1;
-
       pointer-events:none;
-
       z-index:1;
-
+      image-rendering: pixelated;
       filter:
-        drop-shadow(0 0 18px rgba(255,255,255,0.7));
-
+        contrast(1.35)
+        saturate(1.2)
+        drop-shadow(0 0 10px rgba(255,255,255,0.35));
       animation:floatKitty 5s ease-in-out infinite;
-    }
+}  
 
     @keyframes floatKitty{
       0%{transform:translateY(0px);}
