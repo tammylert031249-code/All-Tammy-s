@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>TLC version1</title>
+
+  <link rel="manifest" href="manifest.json" />
+
+  <meta name="theme-color" content="#f7b6c8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="TLC version1" />
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    :root{
+      --bg1:#fff7fb;
+      --bg2:#ffe4ef;
+      --glass:rgba(255,255,255,0.22);
+      --border:rgba(255,255,255,0.35);
+
+      --text:#4b2d37;
+
+      --accent:#ff72a7;
+      --accent2:#ffc0d8;
+
+      --shadow:rgba(255,114,167,0.18);
+    }
+
+    body{
+      font-family: Arial, sans-serif;
+
+      min-height:100vh;
+
+      color:var(--text);
+
+      overflow-x:hidden;
+
+      background:
+        radial-gradient(circle at top left, #ffd6e5 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #ffe7f1 0%, transparent 30%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:32px 18px;
+      position:relative;
+    }
+
+    /* floating blur circles */
+
+    .blob{
+      position:absolute;
+      border-radius:50%;
+      filter:blur(60px);
+      opacity:0.45;
+      z-index:0;
+      animation:float 7s ease-in-out infinite;
+    }
+
+    .blob1{
+      width:240px;
+      height:240px;
+      background:#ffc2d8;
+      top:-60px;
+      left:-60px;
+    }
+
+    .blob2{
+      width:220px;
+      height:220px;
+      background:#ffd9eb;
+      bottom:-70px;
+      right:-70px;
+      animation-delay:2s;
+    }
+
+    @keyframes float{
+      0%{transform:translateY(0px);}
+      50%{transform:translateY(15px);}
+      100%{transform:translateY(0px);}
+    }
+
+    .container{
+      width:100%;
+      max-width:950px;
+      position:relative;
+      z-index:2;
+    }
+
+    /* hello kitty corner image */
+
+    .corner-img{
+      position:fixed;
+
+      width:130px;
+
+      right:14px;
+      bottom:10px;
+
+      opacity:0.14;
+
+      pointer-events:none;
+
+      z-index:1;
+
+      filter:
+        drop-shadow(0 0 18px rgba(255,255,255,0.7));
+
+      animation:floatKitty 5s ease-in-out infinite;
+    }
+
+    @keyframes floatKitty{
+      0%{transform:translateY(0px);}
+      50%{transform:translateY(-8px);}
+      100%{transform:translateY(0px);}
+    }
+
+    .hero{
+      text-align:center;
+      margin-bottom:42px;
+    }
+
+    .hero h1{
+      font-size:3.2rem;
+      color:var(--accent);
+
+      margin-bottom:12px;
+
+      letter-spacing:1px;
+
+      text-shadow:
+        0 0 14px rgba(255,114,167,0.25);
+    }
+
+    .hero p{
+      font-size:1.05rem;
+      opacity:0.78;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:26px;
+    }
+
+    .card{
+      position:relative;
+
+      text-decoration:none;
+
+      color:var(--text);
+
+      padding:30px 26px;
+
+      border-radius:28px;
+
+      background:var(--glass);
+
+      border:1px solid var(--border);
+
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+
+      overflow:hidden;
+
+      box-shadow:
+        0 10px 35px rgba(255,114,167,0.12);
+
+      transition:
+        transform .28s ease,
+        box-shadow .28s ease,
+        border .28s ease;
+    }
+
+    .card::before{
+      content:"";
+
+      position:absolute;
+
+      inset:0;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,255,255,0.28),
+          transparent
+        );
+
+      pointer-events:none;
+    }
+
+    .card:hover{
+      transform:
+        translateY(-10px)
+        scale(1.025);
+
+      border:1px solid rgba(255,255,255,0.7);
+
+      box-shadow:
+        0 0 22px rgba(255,114,167,0.22),
+        0 18px 50px rgba(255,114,167,0.28);
+    }
+
+    .icon{
+      font-size:2.7rem;
+      margin-bottom:18px;
+    }
+
+    .card h2{
+      font-size:1.28rem;
+      margin-bottom:12px;
+    }
+
+    .card p{
+      line-height:1.6;
+      opacity:0.82;
+      font-size:0.96rem;
+    }
+
+    footer{
+      text-align:center;
+      margin-top:42px;
+      opacity:0.58;
+      font-size:0.92rem;
+    }
+
+    @media(max-width:700px){
+
+      .hero h1{
+        font-size:2.3rem;
+      }
+
+      .hero p{
+        font-size:0.96rem;
+      }
+
+      .card{
+        padding:24px;
+      }
+
+      .corner-img{
+        width:90px;
+        opacity:0.12;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- floating background blobs -->
+
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <!-- corner image -->
+
+  <img
+    src="kitty.png"
+    alt="corner decoration"
+    class="corner-img"
+  >
+
+  <div class="container">
+
+    <div class="hero">
+
+      <h1>TLC version1</h1>
+
+      <p>
+        Scientific laser and optics calculator toolkit
+      </p>
+
+    </div>
+
+    <div class="grid">
+
+      <a class="card" href="D.E. cal.html">
+
+        <div class="icon">✨</div>
+
+        <h2>Diffraction Efficiency</h2>
+
+        <p>
+          Calculate diffraction efficiency and evaluate optical performance.
+        </p>
+
+      </a>
+
+      <a class="card" href="Peak Intensity cal.html">
+
+        <div class="icon">⚡</div>
+
+        <h2>Intensity and Power</h2>
+
+        <p>
+          Compute laser intensity, power density, and beam parameters.
+        </p>
+
+      </a>
+
+      <a class="card" href="z-scan cal.html">
+
+        <div class="icon">🔬</div>
+
+        <h2>z-scan</h2>
+
+        <p>
+          Analyze nonlinear optical properties with z-scan calculations.
+        </p>
+
+      </a>
+
+    </div>
+
+    <footer>
+      TLC version1 • Progressive Web App
+    </footer>
+
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator') {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+
+</body>
+</html>
